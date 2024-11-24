@@ -7,15 +7,28 @@ const queries = resolve(__dirname, 'node_modules/tree-sitter-familymarkup/querie
 /**
  * @param {string} text
  * @param {import('./index').Params} [params]
- * @returns {string}
+ * @returns {{html?: string, ast?: import('hast').ElementContent[]}}
  */
 module.exports = function highlight(text, params = {}) {
 	const parser = ensureParser();
 	const tree = parser.parse(text);
 	const q = ensureQuery();
-	const list = q.captures(tree.rootNode);
+	const list = uniqCaptures(q.captures(tree.rootNode));
 
-	return convert(text, uniqCaptures(list), params);
+	let html = '';
+	const ast = [];
+
+	convert(text, list, params, function (type, value, className) {
+		if (params.html) {
+			html += toHtml(type, value, className);
+		}
+
+		if (params.ast) {
+			ast.push(toAst(type, value, className));
+		}
+	});
+
+	return {html, ast};
 };
 
 /**
@@ -61,11 +74,10 @@ function uniqCaptures(captures) {
 /**
  * @param {string} src
  * @param {import('tree-sitter').QueryCapture[]} captures
- * @param {import('./index').Params} [params]
- * @returns {string}
+ * @param {import('./index').Params} params
+ * @param {function("text" | "span", string, string?)} cb
  */
-function convert(src, captures, params = {}) {
-	let result = '';
+function convert(src, captures, params = {}, cb) {
 	let curIndex = 0;
 
 	for (const capture of captures) {
@@ -73,14 +85,61 @@ function convert(src, captures, params = {}) {
 		const {startIndex: start, endIndex: end} = capture.node;
 		const content = src.slice(start, end);
 
-		result += src.slice(curIndex, start) + `<span class="${className}">${content}</span>`;
+		if (curIndex < start) {
+			cb('text', src.slice(curIndex, start));
+		}
+
+		cb('span', content, className);
 
 		curIndex = end;
 	}
 
-	result += src.slice(curIndex);
+	const last = src.slice(curIndex);
 
-	return result;
+	if (last.length > 0) {
+		cb('text', last);
+	}
+}
+
+/**
+ * @param {"text" | "span"} type
+ * @param {string} text
+ * @param {string} className
+ * @returns {string}
+ */
+function toHtml(type, text, className) {
+	return (
+		type === 'span' ?
+			`<span class="${className}">${text}</span>` :
+			text
+	);
+}
+
+/**
+ * @param {"text" | "span"} type
+ * @param {string} value
+ * @param {string} className
+ * @returns {import('hast').ElementContent}
+ */
+function toAst(type, value, className) {
+	if (type === 'text') {
+		return {
+			type,
+			value,
+		};
+	}
+
+	return {
+		type: 'element',
+		tagName: type,
+		properties: {
+			className
+		},
+		children: [{
+			type: 'text',
+			value,
+		}],
+	};
 }
 
 /** @type {Map<string, string>} */

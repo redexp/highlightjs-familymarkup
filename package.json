@@ -1,6 +1,6 @@
 {
   "name": "highlight-familymarkup",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Highlight function for FamilyMarkup language",
   "main": "index.js",
   "types": "index.d.ts",
@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/redexp/highlightjs-familymarkup#readme",
   "devDependencies": {
+    "@types/hast": "^3.0.4",
     "expect": "^29.7.0",
     "mocha": "^10.8.2"
   },

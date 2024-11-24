@@ -23,7 +23,7 @@ Name2
 <span class="hljs-comment"># test 3 // test * test</span>
 `;
 
-		const html = highlight(src, {classPrefix: 'hljs-', modifiers: false});
+		const {html} = highlight(src, {classPrefix: 'hljs-', modifiers: false, html: true});
 
 		expect(html).toEqual(target);
 	});
@@ -53,7 +53,7 @@ Name2
 <span class="string unknown">?</span>
 `;
 
-		const html = highlight(src);
+		const {html} = highlight(src, {ast: true, html: true});
 
 		expect(html).toEqual(target);
 	});
