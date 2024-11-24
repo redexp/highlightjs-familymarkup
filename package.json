@@ -1,0 +1,33 @@
+{
+  "name": "highlight-familymarkup",
+  "version": "1.0.0",
+  "description": "Highlight function for FamilyMarkup language",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "type": "commonjs",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/redexp/highlightjs-familymarkup.git"
+  },
+  "keywords": [
+    "highlight",
+    "familymarkup"
+  ],
+  "author": "Sergii Kliuchnyk",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/redexp/highlightjs-familymarkup/issues"
+  },
+  "homepage": "https://github.com/redexp/highlightjs-familymarkup#readme",
+  "devDependencies": {
+    "expect": "^29.7.0",
+    "mocha": "^10.8.2"
+  },
+  "dependencies": {
+    "tree-sitter": "^0.21.1",
+    "tree-sitter-familymarkup": "^1.8.3"
+  }
+}
