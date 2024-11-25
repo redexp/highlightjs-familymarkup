@@ -1,6 +1,6 @@
 {
   "name": "highlight-familymarkup",
-  "version": "1.2.O",
+  "version": "1.2.0",
   "description": "Highlight function for FamilyMarkup language",
   "main": "index.js",
   "types": "index.d.ts",
