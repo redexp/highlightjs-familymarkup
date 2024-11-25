@@ -1,8 +1,14 @@
 const Parser = require('tree-sitter');
 const Fml = require('tree-sitter-familymarkup');
 const {readFileSync} = require('fs');
-const {resolve} = require('path');
-const queries = resolve(__dirname, 'node_modules/tree-sitter-familymarkup/queries/highlights.scm');
+const {join} = require('path');
+const queries = (
+	require.resolve('tree-sitter-familymarkup')
+	.replace(
+		/tree-sitter-familymarkup.+$/,
+		join('tree-sitter-familymarkup', 'queries', 'highlights.scm')
+	)
+);
 
 /**
  * @param {string} text
