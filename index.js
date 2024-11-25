@@ -26,7 +26,7 @@ module.exports = function highlight(text, params = {}) {
 
 	convert(text, list, params, function (type, value, className) {
 		if (params.html) {
-			html += toHtml(type, value, className);
+			html += toHtml(type, value, className.join(' '));
 		}
 
 		if (params.ast) {
@@ -80,10 +80,10 @@ function uniqCaptures(captures) {
 /**
  * @param {string} src
  * @param {import('tree-sitter').QueryCapture[]} captures
- * @param {import('./index').Params} params
- * @param {function("text" | "span", string, string?)} cb
+ * @param {import('./index').ClassNameParams} params
+ * @param {function("text" | "span", string, Array<string>?)} cb
  */
-function convert(src, captures, params = {}, cb) {
+function convert(src, captures, params, cb) {
 	let curIndex = 0;
 
 	for (const capture of captures) {
@@ -92,7 +92,7 @@ function convert(src, captures, params = {}, cb) {
 		const content = src.slice(start, end);
 
 		if (curIndex < start) {
-			cb('text', src.slice(curIndex, start));
+			cb('text', src.slice(curIndex, start), []);
 		}
 
 		cb('span', content, className);
@@ -103,7 +103,7 @@ function convert(src, captures, params = {}, cb) {
 	const last = src.slice(curIndex);
 
 	if (last.length > 0) {
-		cb('text', last);
+		cb('text', last, []);
 	}
 }
 
@@ -124,7 +124,7 @@ function toHtml(type, text, className) {
 /**
  * @param {"text" | "span"} type
  * @param {string} value
- * @param {string} className
+ * @param {string[]} className
  * @returns {import('hast').ElementContent}
  */
 function toAst(type, value, className) {
@@ -148,16 +148,23 @@ function toAst(type, value, className) {
 	};
 }
 
-/** @type {Map<string, string>} */
+/** @type {Map<string, string[]>} */
 const typesMap = new Map();
 
 /**
  * @param {string} type
- * @param {import('./index').Params} [params]
- * @returns {string}
+ * @param {import('./index').ClassNameParams} [params]
+ * @returns {string[]}
  */
 function getClassName(type, params = {}) {
-	const {classPrefix = '', modifiers = true} = params;
+	const {classPrefix = '', modifiers = true, classMap} = params;
+
+	if (classMap?.hasOwnProperty(type)) {
+		const className = classMap[type];
+
+		return Array.isArray(className) ? className : [className];
+	}
+
 	const key = type + ':' + classPrefix + ':' + modifiers;
 
 	if (typesMap.has(key)) {
@@ -170,7 +177,9 @@ function getClassName(type, params = {}) {
 		list = [list[0]];
 	}
 
-	list = list.map(t => classPrefix + t).join(' ');
+	if (classPrefix) {
+		list = list.map(t => classPrefix + t);
+	}
 
 	typesMap.set(type, list);
 

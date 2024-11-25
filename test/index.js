@@ -2,7 +2,7 @@ const {default: expect} = require('expect');
 const highlight = require('../index');
 
 describe('fml', function () {
-	it('comments', function () {
+	it('classPrefix, modifiers, html', function () {
 		const src = `
 Fam
 // test * test #
@@ -28,33 +28,237 @@ Name2
 		expect(html).toEqual(target);
 	});
 
-	it('unknown', function () {
+	it('ast, classMap', function () {
 		const src = `
 Fam
+// test
 
-Name + ? =
+Name + ? = test
 Name2
+* test
 girl?
-
-Name + Some Name? =
-Name2
-?
 `;
 
-		const target = `
-<span class="class declaration family_name">Fam</span>
+		const {ast} = highlight(src.trim(), {
+			ast: true,
+			classMap: {
+				'class.declaration.family_name': 'class-name'
+			},
+		});
 
-<span class="property static name ref">Name</span> <span class="operator sources join">+</span> <span class="string unknown">?</span> <span class="operator arrow">=</span>
-<span class="property declaration static name def">Name2</span>
-<span class="string unknown">girl?</span>
-
-<span class="property static name ref">Name</span> <span class="operator sources join">+</span> <span class="string unknown">Some Name?</span> <span class="operator arrow">=</span>
-<span class="property declaration static name def">Name2</span>
-<span class="string unknown">?</span>
-`;
-
-		const {html} = highlight(src, {ast: true, html: true});
-
-		expect(html).toEqual(target);
+		expect(ast).toEqual([
+			{
+				"type": "element",
+				"tagName": "span",
+				"properties": {
+					"className": [
+						"class-name",
+					]
+				},
+				"children": [
+					{
+						"type": "text",
+						"value": "Fam"
+					}
+				]
+			},
+			{
+				"type": "text",
+				"value": "\n"
+			},
+			{
+				"type": "element",
+				"tagName": "span",
+				"properties": {
+					"className": [
+						"comment"
+					]
+				},
+				"children": [
+					{
+						"type": "text",
+						"value": "// test"
+					}
+				]
+			},
+			{
+				"type": "text",
+				"value": "\n\n"
+			},
+			{
+				"type": "element",
+				"tagName": "span",
+				"properties": {
+					"className": [
+						"property",
+						"static",
+						"name",
+						"ref"
+					]
+				},
+				"children": [
+					{
+						"type": "text",
+						"value": "Name"
+					}
+				]
+			},
+			{
+				"type": "text",
+				"value": " "
+			},
+			{
+				"type": "element",
+				"tagName": "span",
+				"properties": {
+					"className": [
+						"operator",
+						"sources",
+						"join"
+					]
+				},
+				"children": [
+					{
+						"type": "text",
+						"value": "+"
+					}
+				]
+			},
+			{
+				"type": "text",
+				"value": " "
+			},
+			{
+				"type": "element",
+				"tagName": "span",
+				"properties": {
+					"className": [
+						"string",
+						"unknown"
+					]
+				},
+				"children": [
+					{
+						"type": "text",
+						"value": "?"
+					}
+				]
+			},
+			{
+				"type": "text",
+				"value": " "
+			},
+			{
+				"type": "element",
+				"tagName": "span",
+				"properties": {
+					"className": [
+						"operator",
+						"arrow"
+					]
+				},
+				"children": [
+					{
+						"type": "text",
+						"value": "="
+					}
+				]
+			},
+			{
+				"type": "text",
+				"value": " "
+			},
+			{
+				"type": "element",
+				"tagName": "span",
+				"properties": {
+					"className": [
+						"string",
+						"label"
+					]
+				},
+				"children": [
+					{
+						"type": "text",
+						"value": "test"
+					}
+				]
+			},
+			{
+				"type": "text",
+				"value": "\n"
+			},
+			{
+				"type": "element",
+				"tagName": "span",
+				"properties": {
+					"className": [
+						"property",
+						"declaration",
+						"static",
+						"name",
+						"def"
+					]
+				},
+				"children": [
+					{
+						"type": "text",
+						"value": "Name2"
+					}
+				]
+			},
+			{
+				"type": "text",
+				"value": "\n"
+			},
+			{
+				"type": "element",
+				"tagName": "span",
+				"properties": {
+					"className": [
+						"comment"
+					]
+				},
+				"children": [
+					{
+						"type": "text",
+						"value": "*"
+					}
+				]
+			},
+			{
+				"type": "element",
+				"tagName": "span",
+				"properties": {
+					"className": [
+						"punctuation",
+						"delimiter",
+						"targets"
+					]
+				},
+				"children": [
+					{
+						"type": "text",
+						"value": " test\ngirl"
+					}
+				]
+			},
+			{
+				"type": "element",
+				"tagName": "span",
+				"properties": {
+					"className": [
+						"string",
+						"unknown"
+					]
+				},
+				"children": [
+					{
+						"type": "text",
+						"value": "?"
+					}
+				]
+			}
+		]);
 	});
 });
