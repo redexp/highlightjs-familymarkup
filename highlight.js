@@ -1,25 +1,12 @@
-const Parser = require('tree-sitter');
-const Fml = require('tree-sitter-familymarkup');
-const {readFileSync} = require('fs');
-const {join} = require('path');
-const queries = (
-	require.resolve('tree-sitter-familymarkup')
-	.replace(
-		/tree-sitter-familymarkup.+$/,
-		join('tree-sitter-familymarkup', 'queries', 'highlights.scm')
-	)
-);
-
 /**
  * @param {string} text
- * @param {import('./index').Params} [params]
- * @returns {{html?: string, ast?: import('hast').ElementContent[]}}
+ * @param {import('./index').HighlightParams} params
+ * @returns {import('./index').Result}
  */
-module.exports = function highlight(text, params = {}) {
-	const parser = ensureParser();
+function highlight(text, params) {
+	const {parser, query} = params;
 	const tree = parser.parse(text);
-	const q = ensureQuery();
-	const list = uniqCaptures(q.captures(tree.rootNode));
+	const list = uniqCaptures(query.captures(tree.rootNode));
 
 	let html = '';
 	const ast = [];
@@ -34,32 +21,21 @@ module.exports = function highlight(text, params = {}) {
 		}
 	});
 
-	return {html, ast};
-};
+	const result = {};
 
-/**
- * @returns {import('tree-sitter')}
- */
-function ensureParser() {
-	let {parser} = ensureParser;
-
-	if (!parser) {
-		parser = ensureParser.parser = new Parser();
-		parser.setLanguage(Fml);
+	if (params.html) {
+		result.html = html;
 	}
 
-	return parser;
-}
-
-function ensureQuery() {
-	let {q} = ensureQuery;
-
-	if (!q) {
-		q = ensureQuery.q = new Parser.Query(Fml, readFileSync(queries, 'utf8'));
+	if (params.ast) {
+		result.ast = ast;
 	}
 
-	return q;
+	return result;
 }
+
+module.exports = highlight;
+module.exports.default = highlight;
 
 /**
  * @param {import('tree-sitter').QueryCapture[]} captures

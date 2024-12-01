@@ -1,7 +1,24 @@
 const {default: expect} = require('expect');
-const highlight = require('../index');
 
-describe('fml', function () {
+describe('node', function () {
+	test({highlight: require('../node')});
+});
+
+describe('browser', function () {
+	const params = {};
+
+	before(async () => {
+		const {default: highlight, init} = await import('../browser.mjs');
+
+		await init();
+
+		params.highlight = highlight;
+	});
+
+	test(params);
+});
+
+function test(params) {
 	it('classPrefix, modifiers, html', function () {
 		const src = `
 Fam
@@ -23,7 +40,7 @@ Name2
 <span class="hljs-comment"># test 3 // test * test</span>
 `;
 
-		const {html} = highlight(src, {classPrefix: 'hljs-', modifiers: false, html: true});
+		const {html} = params.highlight(src, {classPrefix: 'hljs-', modifiers: false, html: true});
 
 		expect(html).toEqual(target);
 	});
@@ -39,7 +56,7 @@ Name2
 girl?
 `;
 
-		const {ast} = highlight(src.trim(), {
+		const {ast} = params.highlight(src.trim(), {
 			ast: true,
 			classMap: {
 				'class.declaration.family_name': 'class-name'
@@ -261,4 +278,4 @@ girl?
 			}
 		]);
 	});
-});
+}
