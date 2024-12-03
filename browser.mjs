@@ -1,5 +1,5 @@
 import Parser from 'web-tree-sitter';
-import queries from './queries.json' assert {type: "json"};
+import queries from 'tree-sitter-familymarkup/queries.json' with {type: "json"};
 import highlight from './highlight.js';
 
 let parser;

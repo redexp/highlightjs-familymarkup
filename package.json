@@ -1,13 +1,14 @@
 {
   "name": "highlight-familymarkup",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Highlight function for FamilyMarkup language",
   "main": "node.js",
   "browser": "browser.mjs",
   "types": "index.d.ts",
   "type": "commonjs",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "wasm": "tree-sitter build --wasm node_modules/tree-sitter-familymarkup"
   },
   "repository": {
     "type": "git",

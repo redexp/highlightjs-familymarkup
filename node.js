@@ -1,7 +1,7 @@
 const Parser = require('tree-sitter');
 const FML = require('tree-sitter-familymarkup');
+const queries = require('tree-sitter-familymarkup/queries.json');
 const highlight = require('./highlight');
-const queries = require('./queries.json');
 
 let parser;
 let query;
